@@ -1,92 +1,43 @@
 version: v1
 kind: kubernetes
-application: potato-facts4
-# Map of Deployment Targets, this is set up in a way where 
-# we can do multi-target deployments (multi-region or multi-cluster)
-targets:
-  # This in the name of a deployment, underneath it are its configuration
-  dev:
-    # the name of an agent configured account
-    account: demo-dev-cluster #sa-eks-direct #saClusterViaHelm
+application: th3morg-nginx # The name of the application to deploy.
+targets: # Map of your deployment target, Borealis supports deploying to one target cluster.
+  th3morg-dev: # Name for your deployment. Use a descriptive value such as the environment name.
+    account: cdf-eks-agent-1
     # Optionally override the namespaces that are in the manifests
-    namespace: borealis-dev
-    # This is the key to a strategy under the strategies map
-    strategy: rolling
+    namespace: th3morg-dev # (Recommended) Set the namespace that the app gets deployed to. Overrides the namespaces that are in your manifests
+    strategy: rolling # A named strategy from the strategies block. This example uses the name strategy1.
     constraints:
-      beforeDeployment:
-      - runWebhook:
-          name: Upgrade_Database_Schema
-          #context:
-          #  environment: dev
-  staging:
-    # the name of an agent configured account
-    account: demo-staging-cluster
-    # Optionally override the namespaces that are in the manifests
-    namespace: borealis-staging
-    # This is the key to a strategy under the strategies map
-    strategy: rolling
-    # This is a list of manifest names that should be included in this deployment
-    constraints:
-      dependsOn: ["dev"]
-      beforeDeployment:
-      - runWebhook:
-          name: Upgrade_Database_Schema
-          context:
-            environment: staging
+      # A set of steps that are executed in parallel, after the deployment is run
       afterDeployment:
-        - runWebhook:
-            name: Run_Integration_Tests
-            context:
-              environment: production
-        - runWebhook:
-            name: Run_Security_Scanners
-        - runWebhook:
-            name: CheckLogs
-        - pause:
-            untilApproved: true
-        - pause:
-                    duration: 1
-                    unit: seconds
-  prod-west:
-    # the name of an agent configured account
-    account: demo-prod-west-cluster
+        - runWebhook: # The map key is the step type
+            name: run integration test # The name of a defined webhook
+
+      # Defines the deployments that must reach a successful state (defined as status == SUCCEEDED) before this deployment can start.Deployments with the same dependsOn criteria will execute in parallel.
+      dependsOn: []
+  th3morg-staging: # Name for your deployment. Use a descriptive value such as the environment name.
+    account: cdf-eks-agent-1
     # Optionally override the namespaces that are in the manifests
-    namespace: borealis-prod
-    # This is the key to a strategy under the strategies map
-    strategy: mycanary
+    namespace: th3morg-staging # (Recommended) Set the namespace that the app gets deployed to. Overrides the namespaces that are in your manifests
+    strategy: mycanary # A named strategy from the strategies block. This example uses the name strategy1.
     constraints:
-      dependsOn: ["staging"]
-      beforeDeployment:
-      - runWebhook:
-          name: Upgrade_Database_Schema
-          #context:
-          #  environment: production
-      - runWebhook:
-          name: Check_Change_Approval_Workflow
-  prod-eu:
-    # the name of an agent configured account
-    account: demo-prod-eu-cluster
+      # Defines the deployments that must reach a successful state (defined as status == SUCCEEDED) before this deployment can start.Deployments with the same dependsOn criteria will execute in parallel.
+      dependsOn: ["th3morg-dev"]
+  th3morg-prod: # Name for your deployment. Use a descriptive value such as the environment name.
+    account: cdf-eks-agent-1
     # Optionally override the namespaces that are in the manifests
-    namespace: borealis-prod-eu
-    # This is the key to a strategy under the strategies map
-    strategy: myBlueGreen
+    namespace: th3morg-prod # (Recommended) Set the namespace that the app gets deployed to. Overrides the namespaces that are in your manifests
+    strategy: mycanary # A named strategy from the strategies block. This example uses the name strategy1.
     constraints:
-      dependsOn: [ "staging" ]
+      # Defines the deployments that must reach a successful state (defined as status == SUCCEEDED) before this deployment can start.Deployments with the same dependsOn criteria will execute in parallel.
+      dependsOn: ["th3morg-staging"]
       beforeDeployment:
-        - pause:
-            untilApproved: true
-        - runWebhook:
-            name: Upgrade_Database_Schema
-            context:
-              environment: production
-        - runWebhook:
-            name: Check_Change_Approval_Workflow
+        - runWebhook: # The map key is the step type
+            name: run integration test # The name of a defined webhook
 # The list of manifests sources
 manifests:
   # This will read all yaml|yml files in a dir and deploy all manifests in that directory to all targets.
-  - path: /manifests/potato-facts.yml
-  - path: /manifests/potato-facts-external-service.yml
-    targets: [ prod-eu]
+  - path: /manifests/th3morg-nginx.yml
 # The map of strategies, a deployment target will reference one of these
 strategies:
   # this is the name for the strategy
@@ -98,29 +49,10 @@ strategies:
           # The map key is the step type
           - setWeight:
               weight: 25
-          - analysis:
-              interval: 7
-              units: seconds
-              numberOfJudgmentRuns: 1
-              rollBackMode: manual
-              rollForwardMode: automatic
-              queries:
-              - avgCPUUsage-pass
           - runWebhook:
-              name: CheckLogs
+              name: run integration test
           #- pause:
           #    untilApproved: true
-          - setWeight:
-              weight: 50
-          - analysis:
-              interval: 7
-              units: seconds
-              numberOfJudgmentRuns: 3
-              rollBackMode: manual
-              rollForwardMode: manual
-              queries: 
-              - avgCPUUsage-fail
-              - avgCPUUsage-pass
           - setWeight:
               weight: 100
   rolling:
@@ -128,183 +60,40 @@ strategies:
       steps: 
       - setWeight:
           weight: 100
-  myBlueGreen:
-    blueGreen:
-      activeService: potato-facts-external
-      previewService: potato-facts-preview
-      redirectTrafficAfter:
-        - runWebhook:
-              name: CheckLogs
-        - analysis:
-              interval: 7
-              units: seconds
-              numberOfJudgmentRuns: 3
-              rollBackMode: manual
-              rollForwardMode: manual
-              queries: 
-              - avgCPUUsage-fail
-              - avgCPUUsage-pass
-      shutDownOldVersionAfter:
-        - pause:
-            untilApproved: true
 
-analysis:
-  defaultMetricProviderName: Stephen-Prometheus
-  queries:
-    - name: avgCPUUsage-pass
-      upperLimit: 10000 #3
-      lowerLimit: 0
-      queryTemplate: >-
-        avg (avg_over_time(container_cpu_system_seconds_total{job="kubelet"}[{{armory.promQlStepInterval}}]) * on (pod)  group_left (annotation_app)
-        sum(kube_pod_annotations{job="kube-state-metrics",annotation_deploy_armory_io_replica_set_name="{{armory.replicaSetName}}"})
-        by (annotation_app, pod)) by (annotation_app)
-      #,annotation_deploy_armory_io_replica_set_name="${canaryReplicaSetName}"})
-      #${ARMORY_REPLICA_SET_NAME}
-      #,annotation_deploy_armory_io_replica_set_name="${ARMORY_REPLICA_SET_NAME}"
-      #${replicaSetName}
-      #${applicationName}
-      # note the time should actually be set to ${promQlStepInterval}
-    - name: invalidQuery
-      upperLimit: 10000 #3
-      lowerLimit: 0
-      queryTemplate: >-
-        avg (avg_over_time(c
-    - name: avgCPUUsage-fail
-      upperLimit: 1
-      lowerLimit: 0
-      queryTemplate: >-
-        avg (avg_over_time(container_cpu_system_seconds_total{job="kubelet"}[{{armory.promQlStepInterval}}]) * on (pod)  group_left (annotation_app)
-        sum(kube_pod_annotations{job="kube-state-metrics",annotation_deploy_armory_io_replica_set_name="{{armory.replicaSetName}}"})
-        by (annotation_app, pod)) by (annotation_app)
-
-
-# armory deploy start -f deploy.yml
+# Define webhooks to be executed before, after or during deployment.
 webhooks:
-  - name: CheckLogs
+  - name: potato-fact-checker
     method: POST
-    uriTemplate: https://api.github.com/repos/stephenatwell/borealis-demo-1/dispatches
-    networkMode: direct
+    uriTemplate: http://th3morg-potato-facts-service.th3morg-dev/webhooks
+    networkMode: remoteNetworkAgent # Optional: direct or remoteNetworkAgent
+    agentIdentifier: cdf-eks-agent-1 # Optional: name of agent or account that has a remote network agent configured
+    # Optional: number of times to execute the webhook again if the trigger is unsuccessful
+    retryCount: 2
+    bodyTemplate:
+      inline: >-
+        {
+          "callbackUri": "{{armory.callbackUri}}",
+          "responseSuccess": true,
+          "forceStatus": 200,
+          "sleepMs": 500000
+        }
+  - name: run integration test # Name of the webhook
+    method: POST # HTTP Method
+    # HTTP headers for the request. i.e. for Authorization or ContentType
     headers:
       - key: Authorization
-        value: token {{secrets.github_token}}
-      - key: Content-Type
-        value: application/json
+        value: token {{secrets.ghaToken}}
+    uriTemplate: https://api.github.com/repos/armory-io/{{context.demo-repo}}/dispatches # the URI for the HTTP request
+    networkMode: direct # Optional: direct or remoteNetworkAgent
+    agentIdentifier: cdf-eks-agent-1 # Optional: name of agent or account that has a remote network agent configured
+    # Optional: number of times to execute the webhook again if the trigger is unsuccessful
+    retryCount: 5
     bodyTemplate:
-      inline:  >-
+      inline: >-
         {
-        "event_type": "checkLogs",
-        "client_payload": {
+          "event_type": "webhookCallback",
+          "client_payload": {
             "callbackUri": "{{armory.callbackUri}}/callback"
-            }
+          }
         }
-    retryCount: 3
-  - name: Upgrade_Database_Schema
-    method: POST
-    uriTemplate: https://api.github.com/repos/stephenatwell/borealis-demo-1/dispatches
-    networkMode: direct
-    headers:
-      - key: Authorization
-        value: token {{secrets.github_token}}
-      - key: Content-Type
-        value: application/json
-    bodyTemplate:
-      inline:  >-
-        {
-        "event_type": "webhookCallback",
-        "client_payload": {
-            "callbackUri": "{{armory.callbackUri}}/callback",
-            "environment": "{{context.environment}}"
-            }
-        }
-    retryCount: 3
-  - name: Check_Change_Approval_Workflow
-    method: POST
-    uriTemplate: https://api.github.com/repos/stephenatwell/borealis-demo-1/dispatches
-    networkMode: direct
-    headers:
-      - key: Authorization
-        value: token {{secrets.github_token}}
-      - key: Content-Type
-        value: application/json
-    bodyTemplate:
-      inline:  >-
-        {
-        "event_type": "webhookCallback",
-        "client_payload": {
-            "callbackUri": "{{armory.callbackUri}}/callback"
-            }
-        }
-    retryCount: 3
-  - name: Run_Integration_Tests
-    method: POST
-    uriTemplate: https://api.github.com/repos/stephenatwell/borealis-demo-1/dispatches
-    networkMode: direct
-    headers:
-      - key: Authorization
-        value: token {{secrets.github_token}}
-
-      - key: Content-Type
-        value: application/json
-    bodyTemplate:
-      inline:  >-
-        {
-        "event_type": "checkLogs",
-        "client_payload": {
-            "callbackUri": "{{armory.callbackUri}}/callback"
-            }
-        }
-    retryCount: 3
-  - name: Run_Security_Scanners
-    method: POST
-    uriTemplate: https://api.github.com/repos/stephenatwell/borealis-demo-1/dispatches
-    networkMode: direct
-    headers:
-      - key: Authorization
-        value: token {{secrets.github_token}}
-      - key: Content-Type
-        value: application/json
-    bodyTemplate:
-      inline:  >-
-        {
-        "event_type": "checkLogs",
-        "client_payload": {
-            "callbackUri": "{{armory.callbackUri}}/callback"
-            }
-        }
-    retryCount: 3
-  - name: Run_Integration_Tests
-    method: POST
-    uriTemplate: https://api.github.com/repos/stephenatwell/borealis-demo-1/dispatches
-    networkMode: direct
-    headers:
-      - key: Authorization
-        value: token {{secrets.github_token}}
-      - key: Content-Type
-        value: application/json
-    bodyTemplate:
-      inline:  >-
-        {
-        "event_type": "checkLogs",
-        "client_payload": {
-            "callbackUri": "{{armory.callbackUri}}/callback"
-            }
-        }
-    retryCount: 3
-  - name: Run_Security_Scanners
-    method: POST
-    uriTemplate: https://api.github.com/repos/stephenatwell/borealis-demo-1/dispatches
-    networkMode: direct
-    headers:
-      - key: Authorization
-        value: token {{secrets.github_token}}
-      - key: Content-Type
-        value: application/json
-    bodyTemplate:
-      inline:  >-
-        {
-        "event_type": "checkLogs",
-        "client_payload": {
-            "callbackUri": "{{armory.callbackUri}}/callback"
-            }
-        }
-    retryCount: 3

@@ -1,0 +1,4 @@
+extraOpts:
+  - "-Dlogging.level.io.armory.cloud.wormhole=DEBUG"
+replicaCount: 1
+releaseName: cdf-eks-agent-1
