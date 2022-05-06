@@ -26,7 +26,7 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
   th3morg-prod: # Name for your deployment. Use a descriptive value such as the environment name.
     account: cdf-eks-agent-1
     # Optionally override the namespaces that are in the manifests
-    namespace: th3morg-prod # (Recommended) Set the namespace that the app gets deployed to. Overrides the namespaces that are in your manifests
+    namespace: th3morg-rna # (Recommended) Set the namespace that the app gets deployed to. Overrides the namespaces that are in your manifests
     strategy: mycanary # A named strategy from the strategies block. This example uses the name strategy1.
     constraints:
       # Defines the deployments that must reach a successful state (defined as status == SUCCEEDED) before this deployment can start.Deployments with the same dependsOn criteria will execute in parallel.
