@@ -14,10 +14,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Deployment
-        uses: armory/cli-deploy-action@main
+        uses: armory/cli-deploy-action@feat/add_context_override
         with:
           clientId: "${{ secrets.CDAAS_CLIENT_ID }}"  # "61ihoLa6dkk5SRwAy232H0TJk1xTBbK6"
           clientSecret:  "${{ secrets.CDAAS_CLIENT_SECRET }}" #Client secret that you created in the Armory Cloud Console that has been encrypted with GitHub's encrypted secrets.
           path-to-file: "/deploy-webhook.yml" # Path to the deployment file. For more information, see the Create a deployment file section.
-          addContext: "environment=prod"
-          applicationName: "potato-facts4sa"
+          addContext: "demo-repo=peacemaker-webhooks-demo"
+          applicationName: "cdf-th3morg-nginx"
