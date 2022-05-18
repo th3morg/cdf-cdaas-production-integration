@@ -37,13 +37,13 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
 # The list of manifests sources
 manifests:
   # This will read all yaml|yml files in a dir and deploy all manifests in that directory to all targets.
-  - path: /manifests/th3morg-nginx.yml
+  - path: manifests/th3morg-nginx.yml
 # The map of strategies, a deployment target will reference one of these
 strategies:
   # this is the name for the strategy
   mycanary:
     # This map key, is the deployment strategy type
-    canary: 
+    canary:
         # List of canary steps
         steps:
           # The map key is the step type
@@ -57,7 +57,7 @@ strategies:
               weight: 100
   rolling:
     canary:
-      steps: 
+      steps:
       - setWeight:
           weight: 100
 
@@ -76,7 +76,7 @@ webhooks:
           "callbackUri": "{{armory.callbackUri}}",
           "responseSuccess": true,
           "forceStatus": 200,
-          "sleepMs": 500000
+          "sleepMs": 5000
         }
   - name: run integration test # Name of the webhook
     method: POST # HTTP Method
