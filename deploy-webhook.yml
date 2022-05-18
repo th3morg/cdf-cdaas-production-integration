@@ -37,7 +37,7 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
 # The list of manifests sources
 manifests:
   # This will read all yaml|yml files in a dir and deploy all manifests in that directory to all targets.
-  - path: /manifests/th3morg-nginx.yml
+  - path: manifests/th3morg-nginx.yml
 # The map of strategies, a deployment target will reference one of these
 strategies:
   # this is the name for the strategy
