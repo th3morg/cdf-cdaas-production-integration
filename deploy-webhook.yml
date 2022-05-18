@@ -8,10 +8,10 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
     namespace: th3morg-dev # (Recommended) Set the namespace that the app gets deployed to. Overrides the namespaces that are in your manifests
     strategy: rolling # A named strategy from the strategies block. This example uses the name strategy1.
     constraints:
-      # A set of steps that are executed in parallel, after the deployment is run
-      afterDeployment:
-        - runWebhook: # The map key is the step type
-            name: potato-fact-checker # The name of a defined webhook
+    #   # A set of steps that are executed in parallel, after the deployment is run
+    #   afterDeployment:
+    #     - runWebhook: # The map key is the step type
+    #         name: potato-fact-checker # The name of a defined webhook
 
       # Defines the deployments that must reach a successful state (defined as status == SUCCEEDED) before this deployment can start.Deployments with the same dependsOn criteria will execute in parallel.
       dependsOn: []
@@ -31,13 +31,13 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
     constraints:
       # Defines the deployments that must reach a successful state (defined as status == SUCCEEDED) before this deployment can start.Deployments with the same dependsOn criteria will execute in parallel.
       dependsOn: ["th3morg-staging"]
-      beforeDeployment:
-        - runWebhook: # The map key is the step type
-            name: potato-fact-checker # The name of a defined webhook
+      # beforeDeployment:
+      #   - runWebhook: # The map key is the step type
+      #       name: potato-fact-checker # The name of a defined webhook
 # The list of manifests sources
 manifests:
   # This will read all yaml|yml files in a dir and deploy all manifests in that directory to all targets.
-  - path: manifests/th3morg-nginx.yml
+  - path: /manifests/th3morg-nginx.yml
 # The map of strategies, a deployment target will reference one of these
 strategies:
   # this is the name for the strategy
@@ -49,8 +49,8 @@ strategies:
           # The map key is the step type
           - setWeight:
               weight: 25
-          - runWebhook:
-              name: potato-fact-checker
+          # - runWebhook:
+          #     name: potato-fact-checker
           #- pause:
           #    untilApproved: true
           - setWeight:
