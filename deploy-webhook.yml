@@ -11,7 +11,7 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
       # A set of steps that are executed in parallel, after the deployment is run
       afterDeployment:
         - runWebhook: # The map key is the step type
-            name: run integration test # The name of a defined webhook
+            name: potato-fact-checker # The name of a defined webhook
 
       # Defines the deployments that must reach a successful state (defined as status == SUCCEEDED) before this deployment can start.Deployments with the same dependsOn criteria will execute in parallel.
       dependsOn: []
@@ -33,7 +33,7 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
       dependsOn: ["th3morg-staging"]
       beforeDeployment:
         - runWebhook: # The map key is the step type
-            name: run integration test # The name of a defined webhook
+            name: potato-fact-checker # The name of a defined webhook
 # The list of manifests sources
 manifests:
   # This will read all yaml|yml files in a dir and deploy all manifests in that directory to all targets.
@@ -50,7 +50,7 @@ strategies:
           - setWeight:
               weight: 25
           - runWebhook:
-              name: run integration test
+              name: potato-fact-checker
           #- pause:
           #    untilApproved: true
           - setWeight:
