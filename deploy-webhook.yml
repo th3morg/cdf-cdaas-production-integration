@@ -66,6 +66,9 @@ webhooks:
   - name: potato-fact-checker
     method: POST
     uriTemplate: http://th3morg-potato-facts-service.th3morg-dev/webhooks
+    headers:
+      - key: Content-Type
+        value: application/json
     networkMode: remoteNetworkAgent # Optional: direct or remoteNetworkAgent
     agentIdentifier: cdf-eks-agent-1 # Optional: name of agent or account that has a remote network agent configured
     # Optional: number of times to execute the webhook again if the trigger is unsuccessful
