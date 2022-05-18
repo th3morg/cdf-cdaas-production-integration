@@ -73,7 +73,7 @@ webhooks:
     bodyTemplate:
       inline: >-
         {
-          "callbackUri": "{{armory.callbackUri}}",
+          "callbackUri": "{{armory.callbackUri}}/callback",
           "responseSuccess": true,
           "forceStatus": 200,
           "sleepMs": 5000
