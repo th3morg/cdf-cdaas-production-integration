@@ -37,16 +37,16 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
 # The list of manifests sources
 manifests:
   # This will read all yaml|yml files in a dir and deploy all manifests in that directory to all targets.
-  - path: /manifests/th3morg-nginx.yml
-  - targets: ["th3morg-dev"]
-    inline: >-
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: ryan-demo-dev
-      data:
-        # property-like keys; each key maps to a simple value
-        some_other_thing: "shiny-manatee"
+  - path: manifests/th3morg-nginx.yml
+  # - targets: ["th3morg-dev"]
+  #   inline: >-
+  #     apiVersion: v1
+  #     kind: ConfigMap
+  #     metadata:
+  #       name: ryan-demo-dev
+  #     data:
+  #       # property-like keys; each key maps to a simple value
+  #       some_other_thing: "shiny-manatee"
   # - targets: [th3morg-prod,th3morg-staging]
   #   inline: |-
   #     apiVersion: v1
@@ -65,10 +65,10 @@ manifests:
   #     data:
   #       # property-like keys; each key maps to a simple value
   #       some_other_thing: "sad-otter"
-  - path: /manifests/configmaps
+  - path: manifests/configmaps
     targets:
-      - th3morg-dev
       - th3morg-staging
+      - th3morg-dev
 
 # The map of strategies, a deployment target will reference one of these
 strategies:
