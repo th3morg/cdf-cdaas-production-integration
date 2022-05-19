@@ -38,33 +38,33 @@ targets: # Map of your deployment target, Borealis supports deploying to one tar
 manifests:
   # This will read all yaml|yml files in a dir and deploy all manifests in that directory to all targets.
   - path: /manifests/th3morg-nginx.yml
-  - targets: ["th3morg-dev"]
-    inline: |-
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: ryan-demo-dev
-      data:
-        # property-like keys; each key maps to a simple value
-        some_other_thing: "shiny-manatee"
-  - targets: [th3morg-prod,th3morg-staging]
-    inline: |-
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: works-stage-prod
-      data:
-        # property-like keys; each key maps to a simple value
-        some_other_thing: "matte-otter"
-  - targets: [th3morg-staging,th3morg-prod]
-    inline: |-
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: not-ignored-stage-prod
-      data:
-        # property-like keys; each key maps to a simple value
-        some_other_thing: "sad-otter"
+  # - targets: ["th3morg-dev"]
+  #   inline: |-
+  #     apiVersion: v1
+  #     kind: ConfigMap
+  #     metadata:
+  #       name: ryan-demo-dev
+  #     data:
+  #       # property-like keys; each key maps to a simple value
+  #       some_other_thing: "shiny-manatee"
+  # - targets: [th3morg-prod,th3morg-staging]
+  #   inline: |-
+  #     apiVersion: v1
+  #     kind: ConfigMap
+  #     metadata:
+  #       name: works-stage-prod
+  #     data:
+  #       # property-like keys; each key maps to a simple value
+  #       some_other_thing: "matte-otter"
+  # - targets: [th3morg-staging,th3morg-prod]
+  #   inline: |-
+  #     apiVersion: v1
+  #     kind: ConfigMap
+  #     metadata:
+  #       name: not-ignored-stage-prod
+  #     data:
+  #       # property-like keys; each key maps to a simple value
+  #       some_other_thing: "sad-otter"
   - path: /manifests/configmaps
     targets:
       - th3morg-dev
