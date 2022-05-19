@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ryan-demo-dev-stage-2
+data:
+  # property-like keys; each key maps to a simple value
+  some_other_thing: "lucky-lark"
